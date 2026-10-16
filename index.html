@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consumer Protection Kiosk - Interactive Legal Kiosk</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --card-bg: #334155;
+            --accent-gold: #f59e0b;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --text-light: #f8fafc;
+            --text-dim: #94a3b8;
+            --border-color: #475569;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: var(--bg-secondary);
+            padding: 1rem 2rem;
+            border-bottom: 2px solid var(--accent-gold);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+            color: var(--accent-gold);
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #f59e0b, #fbbf24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+
+        nav {
+            display: flex;
+            background-color: var(--bg-secondary);
+            padding: 0.5rem 1rem;
+            gap: 0.5rem;
+            overflow-x: auto;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background-color: var(--card-bg);
+            color: var(--accent-gold);
+        }
+
+        main {
+            flex: 1;
+            padding: 1.5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 992px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .content-area {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .card {
+            background-color: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            color: var(--accent-gold);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .info-box {
+            background-color: var(--card-bg);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-blue);
+            cursor: pointer;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .info-box:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent-gold);
+        }
+
+        .info-box h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .info-box h3 span {
+            font-size: 0.75rem;
+            color: var(--accent-gold);
+            font-weight: normal;
+        }
+
+        .info-box p, .info-box ul {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            line-height: 1.5;
+        }
+
+        .info-box ul {
+            padding-left: 1.2rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Modal Popup for Deep Details */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 1rem;
+        }
+
+        .modal-card {
+            background-color: var(--bg-secondary);
+            border: 2px solid var(--accent-gold);
+            border-radius: 12px;
+            max-width: 600px;
+            width: 100%;
+            padding: 2rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            position: relative;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .modal-close:hover { color: var(--accent-gold); }
+
+        /* Scanner Styling */
+        .scanner-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .scanner-input-row {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .scanner-input {
+            flex: 1;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            color: var(--text-light);
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .btn-scan {
+            background-color: var(--accent-green);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .scan-result-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 1.5rem;
+            border-left: 5px solid var(--accent-green);
+            margin-top: 1rem;
+            display: none;
+        }
+
+        /* Ezra Assistant Styles (Sticky Always Visible) */
+        .assistant-panel {
+            background-color: var(--bg-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            height: 650px;
+            position: sticky;
+            top: 1.5rem;
+        }
+
+        .assistant-header {
+            padding: 1rem;
+            background-color: var(--card-bg);
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--bg-primary);
+        }
+
+        .chat-box {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .message {
+            max-width: 90%;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .message.bot {
+            background-color: var(--card-bg);
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+        }
+
+        .message.user {
+            background-color: var(--accent-blue);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+        }
+
+        .chat-controls {
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .quick-chips {
+            display: flex;
+            gap: 0.4rem;
+            overflow-x: auto;
+            padding-bottom: 0.2rem;
+        }
+
+        .chip {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--accent-gold);
+            font-size: 0.75rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 15px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .chip:hover {
+            background-color: var(--accent-gold);
+            color: var(--bg-primary);
+        }
+
+        .input-row {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-input {
+            flex: 1;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            color: var(--text-light);
+            outline: none;
+        }
+
+        .btn-send {
+            background-color: var(--accent-gold);
+            color: var(--bg-primary);
+            border: none;
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .tts-btn {
+            background: transparent;
+            border: none;
+            color: var(--accent-gold);
+            cursor: pointer;
+            font-size: 1.1rem;
+            margin-left: 0.5rem;
+        }
+
+        .tag-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .badge-copra { background-color: rgba(59, 130, 246, 0.2); color: var(--accent-blue); }
+        .badge-fssai { background-color: rgba(16, 185, 129, 0.2); color: var(--accent-green); }
+        .badge-bis { background-color: rgba(245, 158, 11, 0.2); color: var(--accent-gold); }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-container">
+            <i class="fa-solid fa-scale-balanced logo-icon"></i>
+            <div>
+                <h1>Consumer Protection Kiosk</h1>
+                <div class="subtitle">Class 12 Business Studies Exhibition Model | COPRA 2019 & Legal Frameworks</div>
+            </div>
+        </div>
+        <button class="nav-btn" onclick="speakWelcome()"><i class="fa-solid fa-volume-high"></i> Voice Intro</button>
+    </header>
+
+    <nav>
+        <button class="nav-btn active" onclick="switchTab('rights')"><i class="fa-solid fa-shield-halved"></i> 6 Core Rights</button>
+        <button class="nav-btn" onclick="switchTab('acts')"><i class="fa-solid fa-book-bookmark"></i> Consumer Acts & Laws</button>
+        <button class="nav-btn" onclick="switchTab('redressal')"><i class="fa-solid fa-gavel"></i> Redressal Machinery</button>
+        <button class="nav-btn" onclick="switchTab('scanner')"><i class="fa-solid fa-barcode"></i> Food Label Scanner</button>
+    </nav>
+
+    <main>
+        <div class="content-area">
+            
+            <!-- SECTION 1: 6 CORE RIGHTS (CLICKABLE FOR DEEP DETAILS) -->
+            <div id="rights-tab" class="tab-content active">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><i class="fa-solid fa-list-check"></i> Consumer Rights under COPRA 2019</div>
+                    </div>
+                    <p style="color: var(--text-dim); margin-bottom: 1rem; font-size: 0.9rem;"><i class="fa-solid fa-hand-pointer"></i> Tap on any right card below to open full legal details and automatic voice reading!</p>
+                    
+                    <div class="grid-2">
+                        <div class="info-box" id="sec-safety" onclick="openRightDetail('safety')">
+                            <span class="tag-badge badge-copra">Right #1</span>
+                            <h3>Right to Safety <span>Tap for Deep Details <i class="fa-solid fa-arrow-right"></i></span></h3>
+                            <p>Protection against goods and services hazardous to life and property. Requires compulsory quality certifications like ISI, FSSAI, or Agmark.</p>
+                        </div>
+                        <div class="info-box" id="sec-information" onclick="openRightDetail('information')">
+                            <span class="tag-badge badge-copra">Right #2</span>
+                            <h3>Right to Information <span>Tap for Deep Details <i class="fa-solid fa-arrow-right"></i></span></h3>
+                            <p>Right to be informed about quality, quantity, potency, purity, standard, and price. Governed under Legal Metrology Rules.</p>
+                        </div>
+                        <div class="info-box" id="sec-choose" onclick="openRightDetail('choose')">
+                            <span class="tag-badge badge-copra">Right #3</span>
+                            <h3>Right to Choose <span>Tap for Deep Details <i class="fa-solid fa-arrow-right"></i></span></h3>
+                            <p>Assurance of access to a variety of goods and services at competitive prices without monopolistic coercion or tie-in sales.</p>
+                        </div>
+                        <div class="info-box" id="sec-heard" onclick="openRightDetail('heard')">
+                            <span class="tag-badge badge-copra">Right #4</span>
+                            <h3>Right to be Heard <span>Tap for Deep Details <i class="fa-solid fa-arrow-right"></i></span></h3>
+                            <p>Right to advocate consumer interests in appropriate forums and receive due consideration in grievance cells.</p>
+                        </div>
+                        <div class="info-box" id="sec-redressal" onclick="openRightDetail('redressal')">
+                            <span class="tag-badge badge-copra">Right #5</span>
+                            <h3>Right to Seek Redressal <span>Tap for Deep Details <i class="fa-solid fa-arrow-right"></i></span></h3>
+                            <p>Right to seek legal remedy against unfair trade practices, including replacement, full refund, or financial compensation.</p>
+                        </div>
+                        <div class="info-box" id="sec-education" onclick="openRightDetail('education')">
+                            <span class="tag-badge badge-copra">Right #6</span>
+                            <h3>Right to Consumer Education <span>Tap for Deep Details <i class="fa-solid fa-arrow-right"></i></span></h3>
+                            <p>Right to acquire knowledge and skill to be an informed consumer throughout life ("Jago Grahak Jago" initiatives).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 2: COMPREHENSIVE ACTS & LEGISLATION (DEEP DETAILS) -->
+            <div id="acts-tab" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><i class="fa-solid fa-scale-unbalanced-flip"></i> Detailed Indian Consumer Acts & Legislation</div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="info-box">
+                            <span class="tag-badge badge-copra">Primary Legislation</span>
+                            <h3>Consumer Protection Act (COPRA), 2019</h3>
+                            <p>The core legal framework replacing the 1986 Act:</p>
+                            <ul>
+                                <li><strong>CCPA Regulator:</strong> Central authority to recall hazardous goods, order class-action refunds, and penalize false advertising.</li>
+                                <li><strong>Product Liability:</strong> Manufacturers and sellers are legally liable for injuries caused by defective products.</li>
+                                <li><strong>E-Commerce Mandates:</strong> Requires online platforms to display country of origin and acknowledge complaints within 48 hours.</li>
+                                <li><strong>Mediation:</strong> Establishes alternative dispute resolution cells attached to consumer courts.</li>
+                            </ul>
+                        </div>
+
+                        <div class="info-box">
+                            <span class="tag-badge badge-fssai">Food Safety Law</span>
+                            <h3>Food Safety & Standards Act (FSSAI), 2006</h3>
+                            <p>Governs all food processing and distribution:</p>
+                            <ul>
+                                <li><strong>14-Digit License:</strong> Every packaged food must feature an authentic FSSAI registration number.</li>
+                                <li><strong>Adulteration Penalties:</strong> Imposes heavy fines and imprisonment for mixing harmful chemical additives in food.</li>
+                                <li><strong>Veg/Non-Veg Dots:</strong> Mandatory green circle or brown/red square indicators on all food packages.</li>
+                            </ul>
+                        </div>
+
+                        <div class="info-box">
+                            <span class="tag-badge badge-bis">Quality Standards</span>
+                            <h3>Bureau of Indian Standards (BIS) Act, 2016</h3>
+                            <p>Ensures product quality and standard certification:</p>
+                            <ul>
+                                <li><strong>ISI Mark:</strong> Compulsory certification mark for safety-critical goods like gas cylinders, electrical appliances, and helmets.</li>
+                                <li><strong>Gold Hallmarking:</strong> Unique 6-digit HUID code mandatory for gold jewelry to prevent purity fraud.</li>
+                                <li><strong>AGMARK:</strong> Quality seal for agricultural products (spices, honey, vegetable oils).</li>
+                            </ul>
+                        </div>
+
+                        <div class="info-box">
+                            <span class="tag-badge badge-copra">Weights & Measures</span>
+                            <h3>Legal Metrology Act, 2009</h3>
+                            <p>Regulates weights, measures, and retail packaging declarations:</p>
+                            <ul>
+                                <li><strong>MRP Enforcement:</strong> Charging above the Maximum Retail Price printed on packages is illegal.</li>
+                                <li><strong>Mandatory Declarations:</strong> Net quantity, manufacturing date, expiry date, and manufacturer customer care must be clearly printed.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 3: REDRESSAL MACHINERY -->
+            <div id="redressal-tab" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><i class="fa-solid fa-landmark"></i> 3-Tier Pecuniary Jurisdiction under COPRA 2019</div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="info-box">
+                            <h3>District Commission</h3>
+                            <p><strong>Jurisdiction:</strong> Handles claims where the value of goods and services paid does NOT exceed <strong>₹1 Crore</strong>.</p>
+                        </div>
+                        <div class="info-box">
+                            <h3>State Commission</h3>
+                            <p><strong>Jurisdiction:</strong> Handles claims exceeding <strong>₹1 Crore</strong> up to <strong>₹10 Crore</strong>.</p>
+                        </div>
+                        <div class="info-box">
+                            <h3>National Commission (NDRCD)</h3>
+                            <p><strong>Jurisdiction:</strong> Handles major claims exceeding <strong>₹10 Crore</strong>.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 4: FOOD LABEL SCANNER -->
+            <div id="scanner-tab" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><i class="fa-solid fa-barcode"></i> Food Packet & Label Safety Scanner</div>
+                    </div>
+                    <p style="color: var(--text-dim); margin-bottom: 1rem; font-size: 0.9rem;">Type a food product name or select an example below to inspect its packaging compliance under FSSAI and Legal Metrology laws:</p>
+                    
+                    <div class="scanner-container">
+                        <div class="scanner-input-row">
+                            <input type="text" id="food-input" class="scanner-input" placeholder="e.g., Maggi, Milk, Honey, Local Juice..." onkeypress="handleScanKeyPress(event)">
+                            <button class="btn-scan" onclick="performFoodScan()"><i class="fa-solid fa-magnifying-glass"></i> Scan Packet</button>
+                        </div>
+
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <span class="chip" onclick="quickScan('Maggi Noodles')">Test: Maggi Pack</span>
+                            <span class="chip" onclick="quickScan('Pure Honey')">Test: Branded Honey</span>
+                            <span class="chip" onclick="quickScan('Local Open Milk')">Test: Unbranded Milk</span>
+                            <span class="chip" onclick="quickScan('Expired Juice')">Test: Expired Juice</span>
+                        </div>
+
+                        <div id="scan-result-card" class="scan-result-card">
+                            <h3 id="scan-res-title" style="color: var(--accent-green); margin-bottom: 0.5rem; font-size: 1.1rem;">Result</h3>
+                            <p id="scan-res-body" style="color: var(--text-light); line-height: 1.5; font-size: 0.95rem;"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT SIDE: AI ASSISTANT EZRA (STAYS ACTIVE GLOBALLY) -->
+        <div class="assistant-panel">
+            <div class="assistant-header">
+                <div class="avatar">E</div>
+                <div>
+                    <h3 style="font-size: 1rem;">Ezra AI Assistant</h3>
+                    <div class="subtitle" style="font-size: 0.75rem;">Detailed Voice Legal Expert</div>
+                </div>
+                <button class="tts-btn" onclick="toggleSpeech()"><i class="fa-solid fa-volume-high" id="tts-icon"></i></button>
+            </div>
+            
+            <div class="chat-box" id="chat-box">
+                <div class="message bot">
+                    Hello! I am <strong>Ezra</strong>, your consumer protection law expert. Ask me about any act, court limit, consumer right, or food safety rule!
+                </div>
+            </div>
+
+            <div class="chat-controls">
+                <div class="quick-chips">
+                    <div class="chip" onclick="askQuick('copra')">COPRA 2019</div>
+                    <div class="chip" onclick="askQuick('courts')">3-Tier Courts</div>
+                    <div class="chip" onclick="askQuick('fssai')">FSSAI Rules</div>
+                    <div class="chip" onclick="askQuick('bis')">ISI & Gold BIS</div>
+                    <div class="chip" onclick="askQuick('rights')">6 Rights</div>
+                </div>
+                <div class="input-row">
+                    <input type="text" class="chat-input" id="chat-input" placeholder="Ask Ezra any doubt..." onkeypress="handleChatKeyPress(event)">
+                    <button class="btn-send" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- POPUP MODAL FOR DEEP RIGHTS DETAILS -->
+    <div class="modal-overlay" id="detail-modal" onclick="closeModal(event)">
+        <div class="modal-card" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeModalBtn()">&times;</button>
+            <h2 id="modal-title" style="color: var(--accent-gold); margin-bottom: 1rem;">Title</h2>
+            <div id="modal-body" style="color: var(--text-light); line-height: 1.6; font-size: 0.95rem;">Details...</div>
+        </div>
+    </div>
+
+    <script>
+        // NAVIGATION & ROUTING ENGINE
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        // HASH QR CODE ROUTING LOGIC
+        window.addEventListener('load', handleHashRoute);
+        window.addEventListener('hashchange', handleHashRoute);
+
+        function handleHashRoute() {
+            const hash = window.location.hash.replace('#', '');
+            if (!hash) return;
+
+            switchTab('rights');
+            const targetEl = document.getElementById('sec-' + hash);
+            if (targetEl) {
+                targetEl.scrollIntoView({ behavior: 'smooth' });
+                targetEl.style.border = '2px solid var(--accent-gold)';
+                setTimeout(() => targetEl.style.border = '', 3000);
+                openRightDetail(hash);
+            }
+        }
+
+        // DETAILED RIGHTS DATA FOR MODAL READINGS
+        const rightsDetailsData = {
+            'safety': {
+                title: "Right #1: Right to Safety",
+                text: "Consumers have the right to be protected against products, production processes, and services which are hazardous to health or life. Under the Consumer Protection Act 2019 and BIS Act 2016, manufacturers must ensure strict quality standards. This right covers electrical appliances, pressure cookers, helmets, and food items, requiring mandatory quality certification marks like ISI, FSSAI, or Agmark before entering the market."
+            },
+            'information': {
+                title: "Right #2: Right to Information",
+                text: "Consumers have the right to be informed about the quality, quantity, potency, purity, standard, and price of goods or services. Regulated strictly under the Legal Metrology Rules, every packaged product must explicitly display the Maximum Retail Price (MRP), net weight, manufacturing date, ingredients, expiry date, and manufacturer customer care address so consumers can make an educated choice."
+            },
+            'choose': {
+                title: "Right #3: Right to Choose",
+                text: "The Right to Choose assures access to a variety of goods and services at competitive prices. It means an assurance of satisfactory quality and service at fair pricing. Traders, manufacturers, or monopolistic suppliers cannot force consumers into unfair tie-in sales or coerce them into purchasing unwanted companion products."
+            },
+            'heard': {
+                title: "Right #4: Right to be Heard",
+                text: "This right ensures that consumer interests will receive due consideration in appropriate forums. It gives consumers the right to advocate their grievances, form consumer associations, and voice complaints before corporate customer service cells, consumer welfare organizations, and government regulatory authorities without fear of being ignored."
+            },
+            'redressal': {
+                title: "Right #5: Right to Seek Redressal",
+                text: "Consumers have the right to seek legal remedy against unfair trade practices, restrictive trade practices, or unscrupulous exploitation. This includes rights to product replacement, full monetary refunds, removal of product defects, or fair compensation for any physical, mental, or financial injury caused by defective goods through the 3-tier consumer commission courts."
+            },
+            'education': {
+                title: "Right #6: Right to Consumer Education",
+                text: "The Right to Consumer Education empowers citizens to acquire the knowledge and skill to be an informed consumer throughout life. Ignorance of consumers is the main cause of their exploitation. National campaigns like 'Jago Grahak Jago', consumer clubs in schools, and government awareness workshops actively promote this right."
+            }
+        };
+
+        function openRightDetail(rightKey) {
+            const data = rightsDetailsData[rightKey];
+            if (!data) return;
+
+            document.getElementById('modal-title').innerText = data.title;
+            document.getElementById('modal-body').innerText = data.text;
+            document.getElementById('detail-modal').style.display = 'flex';
+
+            speakText(`${data.title}. ${data.text}`);
+        }
+
+        function closeModalBtn() {
+            document.getElementById('detail-modal').style.display = 'none';
+            window.speechSynthesis.cancel();
+        }
+
+        function closeModal(e) {
+            if (e.target.id === 'detail-modal') {
+                closeModalBtn();
+            }
+        }
+
+        // TEXT TO SPEECH ENGINE
+        let ttsEnabled = true;
+
+        function toggleSpeech() {
+            ttsEnabled = !ttsEnabled;
+            const icon = document.getElementById('tts-icon');
+            icon.className = ttsEnabled ? "fa-solid fa-volume-high" : "fa-solid fa-volume-xmark";
+            speakText(ttsEnabled ? "Voice assistant enabled." : "Voice assistant disabled.");
+        }
+
+        function speakText(text) {
+            if (!ttsEnabled || !('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 0.95;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function speakWelcome() {
+            speakText("Welcome to the Consumer Protection Kiosk. I am Ezra, your legal voice guide. You can explore the six consumer rights, check food package safety with our scanner, or ask me any question about consumer laws and courts.");
+        }
+
+        // FOOD LABEL SCANNER ENGINE
+        function quickScan(productName) {
+            document.getElementById('food-input').value = productName;
+            performFoodScan();
+        }
+
+        function handleScanKeyPress(e) {
+            if (e.key === 'Enter') performFoodScan();
+        }
+
+        function performFoodScan() {
+            const query = document.getElementById('food-input').value.trim().toLowerCase();
+            const card = document.getElementById('scan-result-card');
+            const titleEl = document.getElementById('scan-res-title');
+            const bodyEl = document.getElementById('scan-res-body');
+
+            if (!query) return;
+
+            card.style.display = 'block';
+
+            if (query.includes('expired') || query.includes('local open') || query.includes('unbranded')) {
+                card.style.borderLeftColor = 'var(--accent-red)';
+                titleEl.style.color = 'var(--accent-red)';
+                titleEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> UNSAFE / FAKE PRODUCT WARNING';
+                bodyEl.innerHTML = `<strong>Product Analysis: "${query}"</strong><br>` +
+                    '• <strong>FSSAI License:</strong> MISSING (Violation of FSSAI Act 2006)<br>' +
+                    '• <strong>Declarations:</strong> No MRP, no expiry date, no ingredient list.<br>' +
+                    '• <strong>Verdict:</strong> Unsafe for consumption and illegal to sell under Legal Metrology Rules. Subject to heavy penalties and seizure.';
+                speakText(`Warning! Product ${query} is unbranded, lacks mandatory FSSAI licensing and expiry dates, and is illegal to sell.`);
+            } else {
+                card.style.borderLeftColor = 'var(--accent-green)';
+                titleEl.style.color = 'var(--accent-green)';
+                titleEl.innerHTML = '<i class="fa-solid fa-circle-check"></i> SAFE & COMPLIANT PACKET VERIFIED';
+                bodyEl.innerHTML = `<strong>Product Analysis: "${query}"</strong><br>` +
+                    '• <strong>FSSAI License:</strong> 10014011001678 (Verified Active)<br>' +
+                    '• <strong>Packaging Check:</strong> Green Vegetarian Symbol present, Net Weight declared, MRP and Best Before date printed clearly.<br>' +
+                    '• <strong>Verdict:</strong> Fully compliant with FSSAI Act 2006 and Legal Metrology Packaging Rules. Safe to purchase.';
+                speakText(`Success! Product ${query} is fully certified, features a valid FSSAI license number, and complies with all consumer safety rules.`);
+            }
+        }
+
+        // ADVANCED INTELLIGENT MATCHING ENGINE FOR EZRA
+        function askQuick(key) {
+            let answer = "";
+            if (key === 'copra') answer = "Under the Consumer Protection Act 2019, which replaced the 1986 Act, consumers enjoy robust modern protections. It established the Central Consumer Protection Authority, known as CCPA, to recall dangerous products, prohibit misleading advertisements, and impose strict penalties. It also introduced product liability laws and fast-track mediation cells.";
+            else if (key === 'courts') answer = "The 3-tier consumer redressal mechanism under COPRA 2019 handles disputes based on claim value. The District Commission handles claims up to 1 Crore rupees. The State Commission handles claims from 1 Crore up to 10 Crore rupees. The National Commission handles major claims exceeding 10 Crore rupees.";
+            else if (key === 'fssai') answer = "Under the Food Safety and Standards Act 2006, all food operators must display a 14-digit FSSAI license number. Packaging must also include clear Green for vegetarian or Red for non-vegetarian dots, ingredients lists, net weight, and expiry dates to prevent food adulteration.";
+            else if (key === 'bis') answer = "The Bureau of Indian Standards Act 2016 regulates product quality. The ISI mark is mandatory for electronic and safety devices like helmets and cylinders, while a unique 6-digit HUID code is compulsory for gold jewelry.";
+            else if (key === 'rights') answer = "The 6 core consumer rights are: Right to Safety, Right to Information, Right to Choose, Right to be Heard, Right to Seek Redressal, and Right to Consumer Education.";
+            
+            appendMessage('user', `Tell me about ${key.toUpperCase()}`);
+            appendMessage('bot', answer);
+            speakText(answer);
+        }
+
+        function sendMessage() {
+            const inputEl = document.getElementById('chat-input');
+            const userMsg = inputEl.value.trim().toLowerCase();
+            if (!userMsg) return;
+
+            appendMessage('user', inputEl.value);
+            inputEl.value = '';
+
+            setTimeout(() => {
+                let botReply = "";
+
+                if (userMsg.includes('safety') || userMsg.includes('hazard')) {
+                    botReply = "The Right to Safety protects consumers against goods and services hazardous to life and property. Manufacturers must adhere to safety guidelines and obtain compulsory quality certifications like ISI, FSSAI, or Agmark before selling items in the open market.";
+                } else if (userMsg.includes('information') || userMsg.includes('mrp') || userMsg.includes('expiry')) {
+                    botReply = "The Right to Information ensures consumers know the quality, quantity, potency, purity, standard, and price of goods. Under Legal Metrology Rules, items must display the Maximum Retail Price, ingredients, weight, and expiry date.";
+                } else if (userMsg.includes('choose') || userMsg.includes('variety')) {
+                    botReply = "The Right to Choose guarantees access to a variety of goods and services at competitive prices, preventing monopolistic trade practices or forced tie-in sales by sellers.";
+                } else if (userMsg.includes('heard') || userMsg.includes('complaint')) {
+                    botReply = "The Right to be Heard ensures that consumer grievances and interests receive due consideration in appropriate forums, consumer cells, and regulatory bodies.";
+                } else if (userMsg.includes('redressal') || userMsg.includes('compensation') || userMsg.includes('refund')) {
+                    botReply = "The Right to Seek Redressal allows consumers to demand a full refund, product replacement, or financial compensation for injury or loss through the 3-tier consumer courts.";
+                } else if (userMsg.includes('education') || userMsg.includes('jago')) {
+                    botReply = "The Right to Consumer Education empowers citizens with knowledge to make wise purchasing decisions throughout life, supported by government initiatives like Jago Grahak Jago.";
+                } else if (userMsg.includes('copra') || userMsg.includes('2019') || userMsg.includes('act')) {
+                    botReply = "The Consumer Protection Act 2019 is the principal legislation governing consumer rights in India. It introduced the CCPA regulator, e-commerce compliance, strict product liability, and mediation.";
+                } else if (userMsg.includes('court') || userMsg.includes('district') || userMsg.includes('state') || userMsg.includes('national') || userMsg.includes('limit') || userMsg.includes('crore')) {
+                    botReply = "The 3-tier judiciary system under COPRA includes the District Commission (up to 1 Crore), State Commission (1 to 10 Crore), and National Commission (above 10 Crore rupees).";
+                } else if (userMsg.includes('fssai') || userMsg.includes('food') || userMsg.includes('adulteration')) {
+                    botReply = "The FSSAI Act 2006 regulates food safety, setting standards for hygiene, packaging, mandatory 14-digit licenses, and penalizing food adulteration severely.";
+                } else if (userMsg.includes('bis') || userMsg.includes('isi') || userMsg.includes('gold') || userMsg.includes('hallmark')) {
+                    botReply = "The BIS Act 2016 oversees standards and quality certification. ISI is mandatory for industrial safety gear, and a 6-digit HUID code is mandatory for gold jewelry purity.";
+                } else {
+                    botReply = "Under Indian Consumer Law and COPRA 2019, consumers are protected against unfair trade practices. You can ask me about any of the 6 core rights, FSSAI food rules, BIS standards, or court limits!";
+                }
+
+                appendMessage('bot', botReply);
+                speakText(botReply);
+            }, 500);
+        }
+
+        function handleChatKeyPress(e) {
+            if (e.key === 'Enter') sendMessage();
+        }
+
+        function appendMessage(sender, text) {
+            const chatBox = document.getElementById('chat-box');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${sender}`;
+            msgDiv.innerHTML = text;
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    </script>
+</body>
+</html>
